@@ -30,11 +30,7 @@
 
 class CBroadcastCtx;
 
-namespace MFC_Shared_Mem {
-class CMessageManager;
-}
-
-
+class CIPCSemaphore;
 class CHttpThread
 {
 public:
@@ -47,19 +43,22 @@ public:
     bool Stop(int);
     void Process();
 
+#ifdef _USE_OLD_MEMMANAGER
     // Reads any queued messages from shared mem segm addressed to us,
     // updates ctx with them & synchronizes ctx to main thread if the msg
     // was read successfully and ctx was updated as a result of the message.
     //
     void readSharedMsg(CBroadcastCtx& ctx);
-
+#endif
     void setServicesFilename(const std::string& sFile)
     {
         m_sServicesFilename = sFile;
     }
     string getServicesFilename() { return m_sServicesFilename; }
 
-    static MFC_Shared_Mem::CMessageManager& getSharedMemManager() { return sm_mem; }
+#ifdef _USE_OLD_MEMMANAGER
+   // static MFC_Shared_Mem::CMessageManager& getSharedMemManager() { return sm_mem; }
+#endif
 
     // thread-safe methods for setting and getting the current thread cmd
     static uint32_t                         getCmd(void);
@@ -67,16 +66,16 @@ public:
 
     static void*                            startProcessThread(void* pCtx);
 
-    static MFC_Shared_Mem::CMessageManager  sm_mem;
+    //static MFC_Shared_Mem::CMessageManager  sm_mem;
     static atomic< uint32_t >               sm_dwThreadCmd;
-    static pthread_mutex_t                  sm_mutexTimed;
+    //static pthread_mutex_t                  sm_mutexTimed;
 
     std::string                             m_sServicesFilename;
 
 private:
     set< int >                              m_workerPids;
     pthread_t                               m_thread;
-
+  //  std::unique_ptr<CIPCSemaphore>             m_pSema;
 #ifdef _DEBUG
 public:
     void orig_process(); // original implementation of Process()

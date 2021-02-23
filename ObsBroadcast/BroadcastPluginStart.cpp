@@ -129,6 +129,7 @@ OBS_DECLARE_MODULE()
 OBS_MODULE_USE_DEFAULT_LOCALE(__progname, "en-US")
 
 
+
 MODULE_EXPORT const char* obs_module_description(void)
 {
     static char s_szDescription[256];
@@ -248,7 +249,12 @@ void loadServices(void)
 // obs_module_load
 //
 // load module for ObsBroadcast Plugin
-bool obs_module_load(void)
+#ifdef _WIN32
+MODULE_EXPORT bool obs_module_load(void)
+#else
+//__attribute__((__visibility__("default"))) bool obs_module_load(void)
+MODULE_EXPORT bool obs_module_load(void)
+#endif
 {
     Log::Setup( CObsUtil::getLogPath() );
     Log::AddOutputMask(MFC_LOG_LEVEL, MFC_LOG_OUTPUT_MASK);
